@@ -13,13 +13,20 @@ namespace PrettyJunction
         private Dictionary<string, List<string>> junctionVar = new Dictionary<string, List<string>>(); 
         public void ProcessFile(string filename)
         {
-            using (StreamReader sr = new StreamReader(filename))
+            try
             {
-                String line;
-                while ((line = sr.ReadLine()) != null)
+                using (StreamReader sr = new StreamReader(filename))
                 {
-                    ProcessLine(line);
+                    String line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        ProcessLine(line);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                WriteError(ex.Message);
             }
         }
         private void ProcessLine(string line)
@@ -32,6 +39,10 @@ namespace PrettyJunction
             if(trimline.StartsWith("@:"))
             {
                 ProcessVariable(trimline);
+                if (!ValidateVariable())
+                {
+                    throw new Exception(string.Format("Format error,current line:{0}",line));
+                }
                 return;
             }
             string[] parts = line.Split(new string[] {" ", "\t"}, StringSplitOptions.RemoveEmptyEntries);
@@ -100,20 +111,26 @@ namespace PrettyJunction
                 }
             }
             //2,validate junction variable length
-            if(junctionVar.Count>1)
+            if (!ValidateVariable()) return false;
+            return true;
+        }
+
+        private bool ValidateVariable()
+        {
+            if (junctionVar.Count > 1)
             {
                 int count = -1;
                 foreach (var kv in junctionVar)
                 {
-                    if(count==-1)
+                    if (count == -1)
                     {
                         count = junctionVar[kv.Key].Count;
                     }
                     else
                     {
-                        if(junctionVar[kv.Key].Count!=count)
+                        if (junctionVar[kv.Key].Count != count)
                         {
-                            WriteError("variables length are not same,{0}",kv.Key);
+                            WriteError("variables length are not same,{0}", kv.Key);
                             return false;
                         }
                     }
