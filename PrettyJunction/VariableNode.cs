@@ -9,5 +9,6 @@ namespace PrettyJunction
     {
         public string Value { get; set; }
         public int Index { get; set; }
+        public bool Exclude { get; set; }
     }
 }

@@ -64,10 +64,7 @@ namespace PrettyJunction
                     matches = VARIABLE_EVALUATOR.Matches(target);
                 if (matches.Count > 0)
                 {
-                    foreach (Match match in matches)
-                    {
-                        ProcessGroup(junctionPoint, target, match);
-                    }
+                    ProcessGroup(junctionPoint, target, matches);
                 }
                 else
                 {
@@ -88,39 +85,7 @@ namespace PrettyJunction
             }
         }
 
-        private void ProcessGroup(string junctionPoint, string target, Match match)
-        {
-            string variable = match.Groups["name"].Value;
-            if (!junctionVar.ContainsKey(variable))
-            {
-                WriteError("can not find variable {0}", variable);
-            }
-            //copy new list
-            var availValues = junctionVar[variable].ToList();
-            string exclude = match.Groups["exclude"].Value;
-            string[] excludes = exclude.Split(new string[] {","}, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var s in excludes)
-            {
-                if (availValues.Contains(s))
-                    availValues.Remove(s);
-            }
-            foreach (var v in availValues)
-            {
-                string junctionValue, targetValue;
-                if (v.Contains("|"))
-                {
-                    string[] parts = v.Split(new string[] {"|"}, StringSplitOptions.RemoveEmptyEntries);
-                    junctionValue = parts[0];
-                    targetValue = parts[1];
-                }
-                else
-                {
-                    junctionValue = v;
-                    targetValue = v;
-                }
-                JunctionPoint.Create(VARIABLE_EVALUATOR.Replace(junctionPoint, junctionValue), VARIABLE_EVALUATOR.Replace(target, targetValue), true);
-            }
-        }
+        
 
         private bool ValidateVariable(MatchCollection matchCollection)
         {
@@ -190,16 +155,16 @@ namespace PrettyJunction
 
             foreach (var node in availNodes)
             {
-                JunctionPoint.Create(Evaluate(junctionPoint, node), Evaluate(target, node), true);
+                JunctionPoint.Create(Evaluate(junctionPoint, node,exclude), Evaluate(target, node), true);
             }
         }
 
-        private string Evaluate(string origin,VariableNode node)
+        private string Evaluate(string origin,VariableNode node,string exclude = null)
         {
             string dest = origin;
             foreach (var key in junctionVar.Keys)
             {
-                dest = dest.Replace(FormatKey(key), junctionVar[key][node.Index]);
+                dest = dest.Replace(FormatKey(key,exclude), junctionVar[key][node.Index]);
             }
 #if DEBUG
             Console.WriteLine(dest);
@@ -207,9 +172,11 @@ namespace PrettyJunction
             return dest;
         }
 
-        private string FormatKey(string key)
+        private string FormatKey(string key,string exclude)
         {
-            return string.Format("{{{0}}}", key);
+            if(string.IsNullOrEmpty(exclude))
+                return string.Format("{{{0}}}", key);
+            return string.Format("{{{0}:-{1}}}", key, exclude);
         }
 
         private  void WriteError(string error,params object[] arg)
@@ -217,6 +184,14 @@ namespace PrettyJunction
             var fgcolor = Console.ForegroundColor;
             Console.ForegroundColor=ConsoleColor.Red;
             Console.WriteLine(error,arg);
+            Console.ForegroundColor = fgcolor;
+        }
+
+        private void WriteSuccess(string error, params object[] arg)
+        {
+            var fgcolor = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(error, arg);
             Console.ForegroundColor = fgcolor;
         }
     }
