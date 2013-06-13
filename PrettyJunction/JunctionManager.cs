@@ -176,6 +176,26 @@ namespace PrettyJunction
             }
         }
 
+        public bool CleanDirectory(string directory)
+        {
+            directory = Path.GetFullPath(directory);
+            if (!Directory.Exists(directory))
+                return false;
+            string[]directories = Directory.GetDirectories(directory);
+            foreach (var s in directories)
+            {
+                if(JunctionPoint.Exists(s))
+                {
+                    Directory.Delete(s);
+                }
+                else
+                {
+                    CleanDirectory(s);
+                }
+            }
+            return true;
+        }
+
         private string Evaluate(string origin,VariableNode node,string exclude = null)
         {
             string dest = origin;
@@ -198,10 +218,7 @@ namespace PrettyJunction
 
         private  void WriteError(string error,params object[] arg)
         {
-            var fgcolor = Console.ForegroundColor;
-            Console.ForegroundColor=ConsoleColor.Red;
-            Console.WriteLine(error,arg);
-            Console.ForegroundColor = fgcolor;
+            Helper.WriteError(error, arg);
         }
 
         private void WriteSuccess(string error, params object[] arg)
