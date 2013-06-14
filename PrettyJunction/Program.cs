@@ -39,10 +39,10 @@ namespace PrettyJunction
                 Console.WriteLine("Try `prettyjunction --help' for more information.");
                 return;
             }
-            //if(show_help)
+            if(show_help)
             {
                 PrintUsage(p);
-                //return;
+                return;
             }
 
             JunctionManager manager=new JunctionManager();
