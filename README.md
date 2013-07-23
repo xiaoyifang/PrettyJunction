@@ -8,10 +8,6 @@ aim to replace junction in some way
 how to use
 ================
 
-=================================================
-Aim to replace junction
-
-=================================================
 
 Try `prettyjunction --help' for more information.
 Options:
@@ -21,7 +17,7 @@ Options:
 
 
 
-```prettyjunction --config=config.example```
+```prettyjunction --config=example.txt```
 
 this tool is mainly used the config file to combine all the junction rules together.
 and improve some function.
