@@ -1,0 +1,21 @@
+#line format:
+#junctionpoint	target
+#@:  used to define variables,like
+#@:variablename=var1,var2,     multi values seperated with comma.
+
+@:folders=folder1,folder2,folder3
+#junctionpoint	targetfolder
+{folders}\Themes\Common UnifiedStyle\Common
+
+#exclude some value from the variable defined.only can exclude from the jucntion point
+{folders:-folder1}\JS UnifiedJs\JS
+
+
+..\{folders}\Config\GeneralConfig GeneralConfig
+#the target point can also have variable.
+..\{folders}\XXXX\Views {folders}\Views 
+
+
+#specific rules,
+#somejunctionfolder\test	targetfolder\testfolder 
+Config\GeneralConfig GeneralConfig
